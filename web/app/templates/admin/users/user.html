@@ -1,0 +1,72 @@
+{% extends "base.html" %} 
+{% block title %}
+    {% if add_user %}
+        Add User
+    {% else %} 
+        Edit User
+    {% endif %}
+{% endblock %} 
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/users.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+<style>
+    body {
+        background: linear-gradient(to right, #cd9fd1, #6515c0) !important;
+    }
+</style>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                {% from "_formhelpers.html" import render_field %}
+                {% if add_user %}
+                <form onsubmit="" class="box" method="POST" action="{{ url_for('admin_page.add_user') }}">
+                {% else %}
+                <form onsubmit="" class="box" method="POST" action="{{ url_for('admin_page.edit_user',id=userid) }}">
+                {% endif %}
+                    {% if add_user %}
+                    <h1>Add User</h1>
+                    {% else %}
+                    <h1>Edit User</h1>
+                    {% endif %}
+                    <br/>
+                    {{ form.csrf_token }}
+                    {{ render_field(form.username) }}
+                    {{ render_field(form.role) }}
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Choose Role
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right" style="background: #000;">
+                        {% for role in roles %}
+                            <button class="dropdown-item" type="button">{{role}}</button>
+                        {% endfor %}
+                        </div>
+                      </div>
+
+                    <input type="Submit" name="" value="Submit" href="#">
+                </form>
+            </div>
+        </div>    
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    $(function(){
+        $("#role").hide();
+        var getRole = $("#role").val();
+        if (getRole) {
+            $(".btn:first-child").text(getRole);
+            $(".btn:first-child").val(getRole);
+        }
+
+        $(".dropdown-menu button").click(function(){
+            $(".btn:first-child").text($(this).text());
+            $(".btn:first-child").val($(this).text());
+            $("#role").removeAttr('required');
+            $("#role").val($(this).text());
+        });
+    });
+</script>
+{% endblock %}

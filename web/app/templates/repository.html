@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<style>
+    table {
+        table-layout:fixed;
+        width: inherit !important;
+      }
+      td, th {
+        height:45px !important;
+        max-height:55px !important;
+        min-height:45px !important;
+        padding: .1rem .5rem .1rem .5rem !important;
+        vertical-align: middle !important;
+      }
+  </style>
+<h3>Repository Scan</h3>
+<p></p>
+
+<div class="row mt-3">
+    <div class="col-12">
+        <table id="repository" class="table" style="width:100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="align-middle" style="width: 12%">Organization</th>
+                    <th style="width: 19%">
+                        <div class="row no-gutters searchable">
+                            <div class="col">
+                                <input class="form-control bg-secondary border-secondary text-warning border-right-0 rounded-0 search_field" 
+                                type="text" placeholder="Repository" name="repository_field">
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-warning btn-outline-secondary border-left-0 rounded-0 rounded-right" type="button">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </div>
+                      </div>
+                    </th>
+                    <th class="align-middle" style="width: 25%">Branch</th>
+                    <th class="align-middle" style="width: 40%">Github Repository</th>
+                    <th class="align-middle" style="width: 4%">Scan</th>
+                </tr>
+            </thead>
+            <tbody class="repository_tbody">
+            {% for item in repository_view.items %}
+            <tr>
+                <td>{{ item[5] }}</td>
+                <td>{{ item[3] }}</td>
+                <td>{{ item[1] }}</td>
+                <td><span class="bi-github" style="font-size: 1rem;"></span>
+                    <a class="link-success" href="{{ item[6] }}">
+                        {{ item[6] }}</a>
+                </td>
+                <td>
+                    <form class="frm_scan" action="#" method="post" role="form">
+                        <input type="hidden" name="id_to_scan" value="{{ item[0] }}" >
+                        <div class="row justify-content-center">
+                            <button type="button" class="btn btn-warning btn-scan">Scan</button>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>Organization</th>
+                    <th>Repository</th>
+                    <th>Branch</th>
+                    <th>Github Repository</th>
+                    <th>Scan</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<div class="row mt-3">
+    <div class="col-12">
+        <div id="paginationBox">
+            <ul class="pagination">
+                {% for page in repository_view.iter_pages(left_edge=3, right_edge=3,  left_current=3, right_current=3) %}
+                {% if page %}
+                <li class="page-item"><a class="page-link" href="#">{{page}}</a></li>
+                {% else %}
+                <li class="page-item disabled"><a href="#" class="page-link">..</a></li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    var scan_btn = {{ (current_user.is_admin() or current_user.is_operator())|tojson }};
+    if (!scan_btn) {
+        $('button.btn-scan').prop('disabled',true);
+    }
+    $(function() {
+        update_scan_btn();
+        var ellipsis = '..';
+
+        function get_data(pageNum) {
+            var searchData = {'query': $('.search_field').val() };
+            $.ajax({
+                url: "{{ url_for('repository_page.repository_filter') }}" + pageNum,
+                dataType: 'json',
+                data: searchData,
+                contentType: "application/json; charset=utf-8",
+                delay:300,
+                method: "GET",
+                success: function(response) {
+                    fill_data(response, pageNum);
+                }, 
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function fill_data(response, active_page='1') {
+            var data = response['json_list'];
+            var page_numbers = response['pages_lst'];
+
+            var cust_data = '<tr>';
+            $.each(data, function(i, value) {
+                cust_data += `<td>${value[5]}</td>`;
+                cust_data += `<td>${value[3]}</td>`;
+                cust_data += `<td>${value[1]}</td>`;
+                cust_data += `<td><span class="bi-github" style="font-size: 1rem;"></span>
+                    <a class="link-success" href="${value[6]}">${value[6]}</a></td>`;
+
+                cust_data += `<td><form class="frm_scan" action="#" method="post" role="form">
+                    <input type="hidden" name="id_to_scan" value="${value[0]}" >
+                    <div class="row justify-content-center">
+                    <button type="button" class="btn btn-warning btn-scan">Scan</button>
+                    </div>
+                    </form></td>`;
+            cust_data += '</tr>';
+            });
+            $(".repository_tbody").replaceWith(
+                `<tbody class="repository_tbody">${cust_data}</tbody>`);
+
+            show_page_numbers(page_numbers);
+            $('ul.pagination').children('li.page-item').removeClass('active');
+            let num_page = active_page.replace(/\//g,'');
+            $(`li.page-item[name="${num_page}"]`).addClass('active');
+            $(this).parent("li.page-item").addClass("active");
+            $(`li.page-item[name="${ellipsis}"]`).removeClass("disabled").addClass("disabled");
+
+            if (!scan_btn) {
+                $('button.btn-scan').prop('disabled',true);
+            }
+            update_scan_btn();
+
+        }
+
+        $('.search_field').keyup(function(e){
+            e.preventDefault();
+            get_data('1');
+        });
+
+        $(document).on("click", "a.page-link", function(e) {
+            e.preventDefault();
+            $(this).closest('ul.pagination').children('li.page-item').removeClass('active');
+            $(this).parent("li.page-item").addClass("active");
+            var page = '/' + $(e.target).html();
+            if (page != ellipsis) {
+                get_data(page);
+            }
+        });
+
+        function show_page_numbers(page_numbers){
+            var new_links_box = document.createElement('div');
+            new_links_box.setAttribute("id","paginationBox");
+
+            var anchorTags = '<ul class="pagination">';
+            for (var i = 0; i < page_numbers.length; i++){
+                var item = page_numbers[i] === null ?  ellipsis : page_numbers[i] ;
+                anchorTags += `<li class="page-item" name="${item}"><a class="page-link" href="#">${item}</a></li>`;
+            }
+            anchorTags += '</ul>'
+            new_links_box.innerHTML = anchorTags;
+            var old_links_box = document.getElementById('paginationBox');
+            old_links_box.parentNode.replaceChild(new_links_box,old_links_box);
+        }
+
+        $('button.btn-outline-secondary').click(function() {
+            let search_input = $("button.btn-outline-secondary").closest(".row.searchable").find("input.search_field");
+            $(search_input).val('');
+            $(search_input).trigger('keyup');
+        });
+
+        function update_scan_btn() {
+            $('input[name="id_to_scan"]').each(function(index) {
+                var hin = $(this);
+
+                let idx = hin.closest('form');
+                let btn = idx.find('.btn-scan');
+                let branch_id = hin.val().toString();
+
+                if (LocalStorager.getWithExpiry(branch_id)) {
+                    btn.replaceWith(`<button type="button" 
+                    class="btn btn-success btn-scan">Scanned</button>`);
+                }
+            });
+        }
+
+
+        $(document).on("click", '.btn-scan', function(event){
+            //event.preventDefault();
+            var element = $(this);
+            var form = element.closest('form');
+            let scan_id = form.find('input').val();
+            let newbtn = `<button type="button" class="btn btn-warning btn-scan disabled">
+                <i class="fa fa-refresh fa-spin"></i></button>`;
+            LocalStorager.setWithExpiry(scan_id.toString(), 'scanned', 3.6E+6); // for one hour
+
+            let scan_btn = element.replaceWith(newbtn);
+            scan_branch(scan_id)
+            .done(function(r) {
+                if (r) {
+                    console.log(r);
+                    var flash = new Flash(r);
+                    flash.show();
+                } else {
+                    console.log('something went wrong nothing returned from server');
+                    var flash = new Flash({'message': 'Somoething went terribly wrong on the server', 'alert': 'danger'})
+                }
+                update_scan_btn();
+            })
+            .fail(function(x) {
+                console.log(x);
+                msg = x.responseJSON;
+                var flash = new Flash(msg);
+                flash.show();
+                update_scan_btn();
+            });
+        });
+
+        function scan_branch_callback(btn, result) {
+            if (result === 'error') {
+                btn.replaceWith(`<button type="button" class="btn btn-danger btn-scan">
+                    Failed</button>`);
+            } else {
+                btn.replaceWith(`<button type="button" class="btn btn-success btn-scan">
+                    Scanned</button>`);
+            }
+        }
+
+        function scan_branch(branch_id) {
+            return $.ajax({
+                url: "{{ url_for('repository_page.scan_branch') }}",
+                dataType: 'json',
+                cache: false,
+                data: JSON.stringify({ 'branch_id': parseInt(branch_id) }),
+                contentType: "application/json; charset=utf-8",
+                method: "POST"
+            });
+        }
+    });
+</script>
+{% endblock %}

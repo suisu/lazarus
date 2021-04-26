@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Scanner{% endblock %}
+{% block content %}
+<h3>Scan</h3>
+<p></p>
+
+<div class="container border border-info rounded mt-4 col-mt-12">
+    <div class="row justify-content-start align-items-center" style="margin: 15px;">
+        <div class="col-2">Scan Github:</div>
+        <div class="col-1">
+            <div class="span">
+                <button type="button" class="btn btn-dark btn-block" id="githubbtn">Scan</button>
+            </div>
+        </div>
+        <div class="col-1">
+            <div class="span">
+                <button type="button" class="btn btn-danger btn-block" id="githubbtnstop">Stop</button>
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="progress">
+                <div id="progress-bar-github" class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                    <span id="progress-bar-label-github" #class="progress-bar-label">0%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<spna></spna>
+<div class="container border border-info rounded mt-4 col-mt-12">
+    <div class="row justify-content-start align-items-center" style="margin: 15px;">
+        <div class="col-2">Scan for vulnerabilities:</div>
+        <div class="col-1">
+            <div class="span">
+                <button type="button" class="btn btn-dark btn-block" id="scanbtn">Scan</button>
+            </div>
+        </div>
+        <div class="col-1">
+            <div class="span">
+                <button type="button" class="btn btn-danger btn-block" id="scanbtnstop">Stop</button>
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="progress">
+                <div id="progress-bar-scan" class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                    <span id="progress-bar-label-scan" #class="progress-bar-label">0%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ul id="messages"></ul>
+
+{% endblock %}
+{% block js %}
+{% endblock %}

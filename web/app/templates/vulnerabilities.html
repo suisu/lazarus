@@ -1,0 +1,85 @@
+{% extends "base.html" %} {% block title %}{{ title }}{% endblock %} {% block content %}
+
+<h3>Vulnerabilities</h3>
+<p></p>
+
+<div class="row mt-3">
+    <div class="col-12">
+        <table id="vulnerabilities" class="table" style="width:100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="align-middle">Branch</th>
+                    <th class="align-middle">Repository
+                        <th class="align-middle">Description</th>
+                        <th class="align-middle">Organization</th>
+                        <th class="align-middle">Repository url</th>
+                        <th class="align-middle">Count</th>
+                        <th class="align-middle">Time Created</th>
+                        <th class="align-middle">Details</th>
+                </tr>
+            </thead>
+            <tbody class="vulnerabilities_tbody">
+                {% for item in vulnerabilities.items %}
+                <tr>
+                    <td>{{ item[3] }}</td>
+                    <td>{{ item[4] }}</td>
+                    <td>{{ item[5] if item[5] }}</td>
+                    <td>{{ item[6] }}</td>
+                    <td><span class="bi-github" style="font-size: 1rem;"></span>
+                        <a class="link-success" href="{{ item[8] }}">
+                        {{ item[8] }}</a>
+                    </td>
+                    <td>
+                        <div class="float-end">{{ item[1] }}</div>
+                    </td>
+                    <td>{{ item[2].strftime('%d.%m.%Y %H:%M') }}</td>
+                    <td>
+                        {% if item[1] > 0 %}
+                        <a class="btn btn-info" href="{{ url_for('details_page.details', id=item[0]) }}" role="button">
+                            <i class="fa fa-bug fa-lg" aria-hidden="true"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>Branch</th>
+                    <th>Repository
+                        <th>Description</th>
+                        <th>Organization</th>
+                        <th>Repository url</th>
+                        <th>Count</th>
+                        <th>Time Created</th>
+                        <th>Details</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<div class="row mt-3">
+    <div class="col-12">
+        <div id="paginationBox">
+            <ul class="pagination">
+                {% if vulnerabilities.has_prev %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('vulnerabilities_page.vulnerabilities', page_num=vulnerabilities.prev_num) }}">Previous</a></li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                {% endif %} {% for page in vulnerabilities.iter_pages(left_edge=3, right_edge=3) %} {% if page %} {% if page == vulnerabilities.page %}
+                <li class="page-item active"><a class="page-link" href="{{ url_for('vulnerabilities_page.vulnerabilities', page_num=page) }}">{{ page }}</a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('vulnerabilities_page.vulnerabilities', page_num=page) }}">{{ page }}</a></li>
+                {% endif %} {% else %}
+                <li class="page-item disabled" id="example_ellipsis"><a href="#" class="page-link">..</a></li>
+                {% endif %} {% endfor %} {% if vulnerabilities.has_next %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('vulnerabilities_page.vulnerabilities', page_num=vulnerabilities.next_num) }}">Next</a></li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">Next</span></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% endblock %} {% block js %} {% endblock %}

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.min.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <title>{% block title %}{% endblock %}</title>
+    <style>
+        a:focus{ color: #ffc107 impo !important; }
+    </style>
+</head>
+
+<body>
+    {% if current_user.is_authenticated %}
+    <nav id="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark" role="navigation">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('dashboard_page.dashboard') }}">Home <span class="sr-only">(current)</span></a>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('vulnerabilities_page.vulnerabilities') }}">Vulnerabilities</a>
+                    </li>
+                    {% if current_user.is_admin() or current_user.is_operator() %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('scanner_page.scan') }}">Scanner</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('repository_page.repository') }}">Repository</a>
+                    </li>
+                    {% if current_user.is_admin() %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrator</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="{{ url_for('admin_page.list_users') }}">Users</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{{ url_for('admin_page.mail_server') }}">Mail Server</a>
+                            <a class="dropdown-item" href="{{ url_for('admin_page.settings') }}">Settings</a>
+                        </div>
+                    </li>
+                    {% endif %}
+            </ul>
+            <ul class="navbar-nav navbar-right">
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><small><mark>Last Github dump: {{ last_updated() }}</mark></small></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('user_page.logout')}}"> <i class="fa fa-power-off" style="color: coral" aria-hidden="true"></i> Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    {% endif %}
+    <div class="container">
+        <div class="w-100 p-2 messaging" style="height: 50px;">
+            {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+            
+            <div class="static alert alert-{{ category }} alert-dismissable fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button> {{ message }}
+            </div>
+            {% endfor %} {% endif %} {% endwith %}
+            <div id="bsalert"></div>
+
+        </div>
+    </div>
+    <div class="container-fluid">
+        {% block content %} {% endblock %}
+    </div>
+    <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/socket.io.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/d3.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/d3pie.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sockets.js') }}"></script>
+    {% block js %} {% endblock %}
+</body>
+
+</html>

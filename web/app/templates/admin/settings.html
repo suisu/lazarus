@@ -1,0 +1,209 @@
+{% extends "base.html" %} 
+{% block title %}{{ title }}{% endblock %} 
+{% block content %}
+<div class="container">
+    <form class="form-horizontal needs-validation" novalidate method="POST" action="{{ url_for('admin_page.settings') }}">
+        {{ form.csrf_token }}
+            <br/>
+            <h3>Github Settings</h3>
+            <div class="row">
+                <div class="col">
+                    <label for="github_api_url">Github API URI</label>
+                </div>
+                <div class="col form-group">
+                    {% if form.github_api_url.errors %}
+                        {{ form.github_api_url(class_="form-control is-invalid") }}
+                    {% else %}
+                        {{ form.github_api_url(class_="form-control") }}
+                    {% endif %}
+                    <small id="githubapiurlHelp" class="form-text text-muted">Enter a valid Github API, e.g. https://api.github.com/, https://github.com/api/v3</small>
+                    {% if form.github_api_url.errors %}
+                        {% for error in form.github_api_url.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="github_token">Github Token</label>
+                </div>
+                <div class="col form-group">
+                    <div class="input-group" id="show_hide_token">
+                        {% if form.github_token.errors %}
+                            {{ form.github_token(class_="form-control is-invalid") }}
+                        {% else %}
+                            {{ form.github_token(class_="form-control") }}
+                        {% endif %}
+                        <div class="input-group-append">
+                            <button class="btn btn-warning" type="button">
+                                <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <small id="githubapitokenHelp" class="form-text text-muted">Enter a valid Github Token</small>
+                    {% if form.github_token.errors %}
+                        {% for error in form.github_token.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="github_last_updated_days" class="control-label">Collect only repos updated within X days</label>
+                </div>
+                <div class="col form-group">
+                    {% if form.github_last_updated_days.errors %}
+                        {{ form.github_last_updated_days(class_="form-control is-invalid") }}
+                    {% else %}
+                        {{ form.github_last_updated_days(class_="form-control") }}
+                    {% endif %}
+                    <small id="githublastuupdateddaysHelp" class="form-text text-muted">Scan only most recent active repositories</small>
+                    {% if form.github_last_updated_days.errors %}
+                        {% for error in form.github_last_updated_days.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <h4>Scanning Options</h4>
+            <br/>
+            <div class="row">
+                <div class="col">
+                    <label for="scan_github_domain">Web github URL</label>
+                </div>
+                <div class="col form-group">
+                    {% if form.scan_github_domain.errors %}
+                        {{ form.scan_github_domain(class_="form-control is-invalid") }}
+                    {% else %}
+                        {{ form.scan_github_domain(class_="form-control") }}
+                    {% endif %}
+                    <small id="scangithubdomainHelp" class="form-text text-muted">Enter github domain, e.g. github.com</small>
+                    {% if form.scan_github_domain.errors %}
+                        {% for error in form.scan_github_domain.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="scan_newer_days">Scan repositories scanned before X days</label>
+                </div>
+                <div class="col form-group">
+                    {% if form.scan_newer_days.errors %}
+                        {{ form.scan_newer_days(class_="form-control is-invalid") }}
+                    {% else %}
+                        {{ form.scan_newer_days(class_="form-control") }}
+                    {% endif %}
+                    <small id="scannewerdaysHelp" class="form-text text-muted">E.g. if you enter 10 days, only repos scanned before 10 days will be scanned again</small>
+                    {% if form.scan_newer_days.errors %}
+                        {% for error in form.scan_newer_days.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="scan_max_depth">Deep Scan</label>
+                </div>
+                <div class="col form-group">
+                    {% if form.scan_max_depth.errors %}
+                        {{ form.scan_max_depth(class_="form-control is-invalid") }}
+                    {% else %}
+                        {{ form.scan_max_depth(class_="form-control") }}
+                    {% endif %}
+                    <small id="scanmaxdepthHelp" class="form-text text-muted">How many commits in history to check, e.g. 10000</small>
+                    {% if form.scan_max_depth.errors %}
+                        {% for error in form.scan_max_depth.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="scan_entropy">Check Entropy</label>
+                </div>
+                <div class="col form-group">
+                    {% if form.scan_entropy.errors %}
+                        {{ form.scan_entropy(class_="form-control is-invalid") }}
+                    {% else %}
+                        {{ form.scan_entropy(class_="form-control btn-warning") }}
+                    {% endif %}
+                    <small id="scanentropyHelp" class="form-text text-muted">It's recommended to have entropy on, the sensitivity of the scanner is then 74%</small>
+                    {% if form.scan_entropy.errors %}
+                        {% for error in form.scan_entropy.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="scan_threads">Number of Threads</label>
+                </div>
+                <div class="col form-group">
+                    {% if form.scan_threads.errors %}
+                        {{ form.scan_threads(class_="form-control is-invalid") }}
+                    {% else %}
+                        {{ form.scan_threads(class_="form-control") }}
+                    {% endif %}
+                    <small id="scanthreadsHelp" class="form-text text-muted">Allowed number of thread in range 1-5</small>
+                    {% if form.scan_threads.errors %}
+                        {% for error in form.scan_threads.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <button type="submit" value="Submit" class="btn btn-warning btn-block">Submit</button>
+            </div>
+            <br/>
+    </form>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    $(document).ready(function() {
+        $("#show_hide_token button").on('click', function(event) {
+            event.preventDefault();
+            if($('#show_hide_token input').attr("type") == "text"){
+                $('#show_hide_token input').attr('type', 'password');
+                $('#show_hide_token i').addClass( "fa-eye-slash" );
+                $('#show_hide_token i').removeClass( "fa-eye" );
+            }else if($('#show_hide_token input').attr("type") == "password"){
+                $('#show_hide_token input').attr('type', 'text');
+                $('#show_hide_token i').removeClass( "fa-eye-slash" );
+                $('#show_hide_token i').addClass( "fa-eye" );
+            }
+        });
+        $("#github_api_url").blur(function() {
+            if (!$("#scan_github_domain").val()) {
+                let inputValue = $("#github_api_url").val();
+                let domain = (new URL(inputValue));
+                $("#scan_github_domain").val(domain.host);
+            }
+        });
+}); 
+</script>
+{% endblock %}

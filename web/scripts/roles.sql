@@ -1,0 +1,22 @@
+--
+-- Roles (insert roles to DB)
+--
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT NAME FROM ROLE 
+                    WHERE NAME = 'ADMIN') THEN
+    INSERT INTO ROLE (NAME) VALUES ('ADMIN');
+    END IF;
+    
+    IF NOT EXISTS (SELECT NAME FROM ROLE 
+                    WHERE NAME = 'OPERATOR') THEN
+        INSERT INTO ROLE (NAME) VALUES ('OPERATOR');
+    END IF;
+
+    IF NOT EXISTS (SELECT NAME FROM ROLE 
+                    WHERE NAME = 'NORMAL') THEN
+        INSERT INTO ROLE (NAME) VALUES ('NORMAL');
+    END IF;
+END
+$$
+--

@@ -1,0 +1,168 @@
+{% extends "base.html" %} 
+{% block title %}{{ title }}{% endblock %} 
+{% block content %}
+<div class="container">
+    <form class="form-horizontal needs-validation" novalidate method="POST" action="{{ url_for('admin_page.mail_server') }}">
+        {{ form.csrf_token }}
+            <br/>
+            <h3>Basic SMTP Server Settings</h3>
+            <br/>
+            <div class="row">
+                <div class="col">
+                    <label for="smtp_server">SMTP Server</label>
+                </div>
+                <div class="col form-group">
+                    {% if form.smtp_server.errors %}
+                        {{ form.smtp_server(class_="form-control is-invalid") }}
+                    {% else %}
+                        {{ form.smtp_server(class_="form-control") }}
+                    {% endif %}
+                    <small id="smtpHelp" class="form-text text-muted">Enter a valid SMTP Server from which the automatic emails will be sent</small>
+                    {% if form.smtp_server.errors %}
+                        {% for error in form.smtp_server.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="smtp_port" class="control-label">SMTP Port</label>
+                </div>
+                <div class="col form-group">
+                    {% if form.smtp_port.errors %}
+                        {{ form.smtp_port(class_="form-control is-invalid") }}
+                    {% else %}
+                        {{ form.smtp_port(class_="form-control") }}
+                    {% endif %}
+                    {% if form.smtp_port.errors %}
+                        {% for error in form.smtp_port.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="sender">Sender&#39;s E-Mail</label>
+                </div>
+                <div class="col form-group">
+                    {% if form.sender.errors %}
+                        {{ form.sender(class_="form-control is-invalid") }}
+                    {% else %}
+                        {{ form.sender(class_="form-control") }}
+                    {% endif %}
+                    <small id="senderHelp" class="form-text text-muted">Enter an E-Mail where only SMTP is allowed</small>
+                    {% if form.sender.errors %}
+                        {% for error in form.sender.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="passwordmail">Password</label>
+                </div>
+                <div class="col form-group">
+                    <div class="input-group" id="show_hide_password">
+                    {% if form.password.errors %}
+                        {{ form.password(class_="form-control is-invalid") }}
+                    {% else %}
+                        {{ form.password(class_="form-control") }}
+                    {% endif %}
+                    <div class="input-group-append">
+                        <button class="btn btn-warning" type="button">
+                            <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                    {% if form.password.errors %}
+                        {% for error in form.password.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                   
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="string">Web Domain</label>
+                </div>
+                <div class="col form-group">
+                    {% if form.web_domain.errors %}
+                        {{ form.web_domain(class_="form-control is-invalid") }}
+                    {% else %}
+                        {{ form.web_domain(class_="form-control") }}
+                    {% endif %}
+                    {% if form.web_domain.errors %}
+                        {% for error in form.web_domain.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <br/><br/>
+            <h4>Security Restriction</h4>
+            <br/>
+            <div class="row mb-5">
+                <div class="col">
+                    <label for="string">User Mail Domain Restriction</label>
+                </div>
+                <div class="col form-group">
+                    {% if form.user_domain.errors %}
+                        {{ form.user_domain(class_="form-control is-invalid") }}
+                    {% else %}
+                        {{ form.user_domain(class_="form-control") }}
+                    {% endif %}
+                    <small id="userdomainHelp" class="form-text text-muted">Restrict User Mail Domain to be sent to</small>
+                    {% if form.user_domain.errors %}
+                        {% for error in form.user_domain.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col">
+                    <button type="submit" name="Test" value="Test" class="btn btn-info btn-block">Test 
+                        <i class="fa fa-envelope fa-fw" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="col">
+                    <button type="submit" name="Submit" value="Submit" class="btn btn-warning btn-block">Save</button>
+                </div>
+            </div>
+    </form>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    $(document).ready(function() {
+        $("#show_hide_password button").on('click', function(event) {
+            event.preventDefault();
+            if($('#show_hide_password input').attr("type") == "text"){
+                $('#show_hide_password input').attr('type', 'password');
+                $('#show_hide_password i').addClass( "fa-eye-slash" );
+                $('#show_hide_password i').removeClass( "fa-eye" );
+            }else if($('#show_hide_password input').attr("type") == "password"){
+                $('#show_hide_password input').attr('type', 'text');
+                $('#show_hide_password i').removeClass( "fa-eye-slash" );
+                $('#show_hide_password i').addClass( "fa-eye" );
+            }
+        });
+});
+</script>
+{% endblock %}

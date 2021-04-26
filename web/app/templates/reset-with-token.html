@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                {% from "_formhelpers.html" import render_field %}
+                <form onsubmit="" class="box" method="POST" action="{{ url_for('user_page.reset_with_token', token=token) }}">
+                    <h1>Reset Password</h1>
+                    <p class="text-muted"> Please enter your new password!</p>
+                    {{ form.csrf_token }}
+                    {{ render_field(form.password) }}
+                    <input type="submit" name="" value="Change my password" href="#">
+                </form>
+            </div>
+        </div>    
+    </div>
+</div>
+
+{% endblock %}

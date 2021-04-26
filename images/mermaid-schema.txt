@@ -1,0 +1,49 @@
+erDiagram
+    Organization ||--o{ Repository : has
+    Organization {
+        int ID
+        string name
+        string url
+    }
+    Repository ||--o{ Branch : has
+    Repository {
+        int ID
+        string name
+        string url
+        bool private
+        string description
+        date last_updated
+    }
+    Branch ||--o{ Scan : has
+    Branch {
+        int ID
+        string name
+        bool default_branch
+    }
+    Repository ||--o{ Language : has
+    Language {
+        int ID
+        string name
+        long lines
+    }
+    Scan {
+        int ID
+        int count
+        date time_created
+    }
+    Scan ||--o{ Vuln : has
+    Vuln {
+        int id
+        string reason
+        array stringsfound
+        string commitHash
+        string commit
+        string printdiff
+        date date
+        string path
+        bool false_positive  
+    }
+    Github {
+        int ID
+        date time_created
+    }

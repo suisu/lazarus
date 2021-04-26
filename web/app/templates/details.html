@@ -1,0 +1,518 @@
+{% extends "base.html" %} {% block title %}Details{% endblock %} {% block content %}
+<style>
+    svg {
+        margin: 0px;
+        position: relative;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+</style>
+
+<div class="row">
+    <div class="col-auto mr-auto">
+        <button type="button" title="Download PDF" class="btn btn-danger btn-pdf" id="downloadbtn">
+            <i class="fa fa-file-pdf-o fa-2x" aria-hidden="true"></i></button>
+        <span id="genmsg" style="display:none;">Generating ...</span>
+    </div>
+</div>
+<p></p>
+
+<div class="canvas_div_pdf">
+
+    <div class="row">
+        <div class="col-auto mr-auto">
+            <h3>Vulnerability Details</h3>
+        </div>
+        <div class="col-auto generated_date">
+        </div>
+    </div>
+    <br/>
+
+    <div class="container-fluid">
+        <div class="row justify-content-start align-items-center">
+            <div class="col-4">
+                <div class="row">
+                    <div class="col-sm-3">Organization:</div>
+                    <div class="col-9">
+                        <a href="{{githubdomain}}/{{ scan.branch.repository.organization.name }}" class="btn btn-light btn-block">
+                            <i class="bi-diagram-3" aria-hidden="true"> {{ scan.branch.repository.organization.name }}</i>
+                        </a>
+                        <div class="col-sm-1 col-xs-1 col-md-1 col-lg-1"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">Repository:</div>
+                    <div class="col-9">
+                        <a href="{{githubdomain}}/{{ scan.branch.repository.organization.name }}/{{ scan.branch.repository.name }}" class="btn btn-light btn-block">
+                            <i class="bi-share" aria-hidden="true"> {{ scan.branch.repository.name }}</i>
+                        </a>
+                        <div class="col-sm-1 col-xs-1 col-md-1 col-lg-1"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">Branch:</div>
+                    <div class="col-9">
+                        <a href="{{githubdomain}}/{{ scan.branch.repository.organization.name }}/{{ scan.branch.repository.name }}/tree/{{ scan.branch.name }}" class="btn btn-light btn-block">
+                            <i class="bi-shuffle" aria-hidden="true"> {{ scan.branch.name }}</i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <h6>Programming languages</h6>
+                <svg id="languages"></svg>
+            </div>
+            <div class="col-4">
+                <h6>Reasons</h6>
+                <svg id="reasons"></svg>
+            </div>
+        </div>
+
+    </div>
+    <br> Issues:
+    <br/>
+
+    <div class="row mt-3">
+        <div class="col-12">
+
+            <table id="detail" class="table table-stripped table-bordered" style="width:100%">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Strings Found</th>
+                        <th>Commit Diff</th>
+                        <th>Reason</th>
+                        <th>Commit Comment</th>
+                        <th>Commit Hash</th>
+                        <th>Path url</th>
+                        <th>Date</th>
+                        <th>False Positive</th>
+                    </tr>
+                </thead>
+                <tbody class="details_tbody">
+                    {% autoescape false %} {% for detail in details.items %}
+                    <tr>
+                        <td>{{ loop.index + (details.page-1)*5 }}</td>
+                        <td>
+                            {% set snippet = detail.stringsfound|join(", ") %} {% if snippet|length > 70 %}
+                            <div id="stringsFound-{{ loop.index }}">
+                                <div class="card">
+                                    <div class="card-header" id="headingOne-{{ loop.index }}">
+                                        <h5 class="mb-0">
+                                            <button class="btn btn-link btn-sm collapsed" data-toggle="collapse" data-target="#collapseOne-{{ loop.index }}" aria-expanded="true" aria-controls="collapseOne-{{ loop.index }}">
+                                                <small>{{ snippet[:70] }}</small>
+                                            </button>
+                                        </h5>
+                                    </div>
+                                    <div id="collapseOne-{{ loop.index }}" class="collapse" aria-labelledby="headingOne-{{ loop.index }}" data-parent="#stringsFound-{{ loop.index }}">
+                                        <div class="card-body">
+                                            <div class="container">
+                                                <div class="row bg-dark text-white">
+                                                    <small>
+                                                    {% for stringFound in detail.stringsfound %}
+                                                        {% set stringFoundBeg = stringFound | replace("[93m", "<div class=bg-danger text-white>") %}
+                                                        {% set stringFoundEnd = stringFoundBeg | replace("[0m", "</div>") %}
+                                                        {{ stringFoundEnd }}
+                                                    {% endfor %}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="container">
+                                <div class="row bg-dark text-white">
+                                    <small>
+                                    {% for stringFound in detail.stringsfound %}
+                                        {% set stringFoundBeg = stringFound | replace("[93m", "<div class=bg-danger text-white>") %}
+                                        {% set stringFoundEnd = stringFoundBeg | replace("[0m", "</div>") %}
+                                        {{ stringFoundEnd }}
+                                    {% endfor %}
+                                    </small>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if detail.printdiff|length > 70 %}
+                            <div id="printDiff-{{ loop.index }}">
+                                <div class="card">
+                                    <div class="card-header" id="headingTwo-{{ loop.index }}">
+                                        <h5 class="mb-0">
+                                            <button class="btn btn-link btn-sm collapsed" data-toggle="collapse" data-target="#collapseTwo-{{ loop.index }}" aria-expanded="true" aria-controls="collapseTwo-{{ loop.index }}">
+                                                <small>{{ detail.printdiff[:70] }}</small>
+                                            </button>
+                                        </h5>
+                                    </div>
+                                    <div id="collapseTwo-{{ loop.index }}" class="collapse" aria-labelledby="headingTwo-{{ loop.index }}" data-parent="#printDiff-{{ loop.index }}">
+                                        <div class="card-body">
+                                            <div class="container">
+                                                <div class="row">
+                                                    <small>
+                                                        {% set snippetBeg = detail.printdiff | replace("[93m", "<div class=bg-danger>") %}
+                                                        {% set snippetEnd = snippetBeg | replace("[0m", "</div>") %}
+                                                        {{ snippetEnd }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="container">
+                                <div class="row">
+                                    <small>
+                                        {% set snippetBeg = detail.printdiff | replace("[93m", "<div class=bg-danger>") %}
+                                        {% set snippetEnd = snippetBeg | replace("[0m", "</div>") %}
+                                        {{ snippetEnd }}
+                                    </small>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td><small>{{ detail.reason if detail.reason }}</small></td>
+                        <td><small><em>{{ detail.commit | replace("\n", "<br />") if detail.commit }}</small></em>
+                        </td>
+                        <td><small>{{ detail.commithash }}</small></td>
+                        <td><small>
+                        <a class="link-success" href="{{githubdomain}}/{{ detail.branch.repository.organization.name }}/{{ detail.branch.repository.name }}/blob/{{ detail.branch.name }}/{{ detail.path}}">
+                            {{ detail.path}}</a>
+                        </small></td>
+                        <td><small>{{ detail.date }}</small></td>
+                        <td>
+                            {% if detail.false_positive is sameas true %}
+                            <input type="checkbox" name="{{ detail.id }}" checked>
+                            {% else %}
+                            <input type="checkbox" name="{{ detail.id }}">
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %} {% endautoescape %}
+                </tbody>
+                <tfoot class="thead-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Strings Found</th>
+                        <th>Commit Diff</th>
+                        <th>Reason</th>
+                        <th>Commit Comment</th>
+                        <th>Commit Hash</th>
+                        <th>Path url</th>
+                        <th>Date</th>
+                        <th>False Positive</th>
+                    </tr>
+                </tfoot>
+            </table>   
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-12">
+            <div id="paginationBox">
+                <ul class="pagination">
+                    {% if details.has_prev %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('details_page.details', id=scan.id, page_num=details.prev_num) }}">Previous</a></li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                    {% endif %} {% for page in details.iter_pages(left_edge=3, right_edge=3) %} {% if page %} {% if page == details.page %}
+                    <li class="page-item active"><a class="page-link" href="{{ url_for('details_page.details', id=scan.id, page_num=page) }}">{{ page }}</a></li>
+                    {% else %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('details_page.details', id=scan.id, page_num=page) }}">{{ page }}</a></li>
+                    {% endif %} {% else %}
+                    <li class="page-item disabled" id="example_ellipsis"><a href="#" class="page-link">..</a></li>
+                    {% endif %} {% endfor %} {% if details.has_next %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('details_page.details', id=scan.id, page_num=details.next_num) }}">Next</a></li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">Next</span></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
+{% block js %}
+<script src="{{ url_for('static', filename='js/jspdf.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/html2canvas.js') }}"></script>
+
+<script>
+    var languages = {{ languages|safe }};
+    var reasons = {{ reasons|safe }};
+    var schemas = [d3.schemeCategory20c, d3.schemeCategory20b]
+
+    class Donut {
+
+        static get defaults() {
+            return {
+                margin: {
+                    top: 30,
+                    right: 15,
+                    bottom: 15,
+                    left: 15
+                }
+            };
+        }
+
+        constructor(config) {
+            this.configure(config);
+            this.init();
+        }
+
+        configure(config) {
+            Object.assign(this, Donut.defaults, config);
+        }
+
+        init() {
+            const {
+                margin,
+                data,
+                name
+            } = this;
+            const outerWidth = 400;
+            const outerHeight = 300;
+            const width = outerWidth - margin.left - margin.right;
+            const height = outerHeight - margin.top - margin.bottom;
+            const r = Math.min(width - 200, height) / 2;
+
+            var nodeWidth = (d) => d.getBBox().width;
+
+
+            const cScale = d3.scaleOrdinal(schemas.pop());
+
+            const arc = d3.arc()
+                .outerRadius(r)
+                .innerRadius(r - 45);
+
+            const pie = d3.pie()
+                .value(d => d.value);
+
+            const svg = d3.select(`svg#${name}`)
+                .style('border', '1px solid #ddd')
+                .attr('width', outerWidth)
+                .attr('height', outerHeight)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            svg.append('g')
+                .attr('class', 'arc')
+                .attr('transform', `translate(${width/3},${height/2})`)
+                .selectAll('path')
+                .data(pie(data))
+                .enter()
+                .append('path')
+                .attr('d', arc)
+                .style('fill', d => cScale(d.value));
+
+            const legend = svg.append('g')
+                .attr('class', 'legend');
+            // .attr('transform', 'translate(0,0)');
+
+            const lg = legend.selectAll('g')
+                .data(data)
+                .enter()
+                .append('g')
+                .attr("transform", function(d, i) {
+                    let xOff = r + 10 + (i % 1) * 50
+                    let yOff = Math.floor(i / 1) * 15
+                    return "translate(" + xOff + "," + yOff + ")"
+                });
+            // .attr('transform', (d,i) => `translate(${i * 100},${height + 15})`);
+
+            lg.append('rect')
+                .style('fill', d => cScale(d.value))
+                .attr('x', 0)
+                .attr('y', 0)
+                .attr('width', 10)
+                .attr('height', 10);
+
+            lg.append('text')
+                .style('font-family', 'Georgia')
+                .style('font-size', '13px')
+                .attr('x', 17.5)
+                .attr('y', 10)
+                .text(d => d.label);
+
+            let offset = 0;
+            //lg.attr('transform', function(d, i) {
+            //    let x = offset;
+            //    offset += nodeWidth(this) + 10;
+            //    return `translate(${x},${height + 10})`;
+            //});
+
+            legend.attr('transform', function() {
+                return `translate(${(width - nodeWidth(this)) / 2},${0})`
+            });
+        }
+
+        render() {}
+    }
+
+    new Donut({
+        element: 'body',
+        margin: {
+            top: 10,
+            right: 0,
+            bottom: 30,
+            left: 0
+        },
+        data: languages,
+        name: 'languages'
+    });
+
+    new Donut({
+        element: 'body',
+        margin: {
+            top: 10,
+            right: 0,
+            bottom: 30,
+            left: 0
+        },
+        data: reasons,
+        name: 'reasons'
+    });
+
+    
+
+    $(function() {
+
+        $("#detail").on('change', ':checkbox', function () {
+            var csrf_token = "{{ csrf_token() }}";
+            let checked = $(this).is(':checked');
+            let scanid = $(this).attr('name');
+            $.ajax({
+                method: "POST",
+                headers: { "X-CSRFToken": csrf_token},
+                url: "{{ url_for('details_page.false_positive') }}",
+                dataType: 'json',
+                cache: false,
+                data: JSON.stringify({ 'vuln_id': parseInt(scanid), 'checked': checked }),
+                contentType: "application/json; charset=utf-8",
+                success: function(data, status, xhr) {
+                    console.log(data);
+                    var flash = new Flash(data);
+                    flash.show();
+                },
+                error: function(jqXhr, textStatus, errorMessage) {
+                    console.log(jqXhr);
+                    //msg = jqXhr.responseJSON;
+                    //var flash = new Flash(msg);
+                    //flash.show();
+                }
+            });
+        });
+
+        $(document).on("click",'.btn-pdf', function(event) {
+            var element = $(this);
+            getPDF();
+        });
+    });
+
+    function getPDF() {
+        var csrf_token = "{{ csrf_token() }}";
+        var data = {'scan_id':  {{ scan.id }} };
+        $.ajax({
+            url: "{{ url_for('details_page.printPDF') }}",
+            headers: { "X-CSRFToken": csrf_token},
+            dataType: 'json',
+            data: JSON.stringify(data),
+            contentType: "application/json; charset=utf-8",
+            delay:300,
+            type: "POST",
+            success: function(response) {
+                fill_data(response);
+                var datetoday = (new Date()).toISOString().split('T')[0];
+                $(".generated_date").append(`<sm><em>Generated:</em> ${datetoday}</sm>`);
+                generatePDF();
+            }, 
+            error: function(error) {
+                console.log(error);
+            }
+        }); 
+    }
+
+    function fill_data(data) {
+        data = data.result;
+        var cust_data='';
+        
+        $.each(data, function(i, value) {
+            if (value.false_positive === true) {
+                cust_data += '<tr class="bg-light">';
+            } else {
+                cust_data += '<tr>';
+            }
+            var false_positive = false;
+            i+=1;
+            if (value.false_positive === false) {
+                cust_data += `<td class="bg-warning" style="text-align: center; vertical-align: middle;"><small>${i}</small></td>`;
+                cust_data += '<td><small>'
+            } else {
+                cust_data += `<td style="text-align: center; vertical-align: middle;"><small>${i}</small></td>`;
+                cust_data += '<td><small>'
+            }
+            
+            $.each(value.stringsfound, function(j, strf) {
+                cust_data += `${strf} <br>`;
+            });
+            cust_data += '</small></td>'
+            cust_data += '<td style="word-break: break-all;"><small>';
+            var pdb = value.printdiff.replace("[93m", "<div class=bg-danger text-white>");
+            var pde = pdb.replace("[0m", "</div>");
+            cust_data += pde;                    
+            cust_data += '</small></td>';
+            
+            cust_data += `<td><small>${value.reason}</small></td>`;
+            cust_data += `<td style="word-break: break-all;"><small><em>${value.commit}</em></small></td>`;
+            cust_data += `<td style="font-size: 12px;"><small>${value.commithash}</small></td>`;
+            cust_data += `<td><small><a class="link-success" href="${value.pathurl}">${value.path}</a></small></td>`;
+    
+            cust_data += `<td><small>${value.date}</small></td>`;
+            if (value.false_positive === true) {
+                cust_data += '<td style="text-align: center; vertical-align: middle;"><input type="checkbox" checked></td>';
+            } else {
+                cust_data += '<td style="text-align: center; vertical-align: middle;"><input type="checkbox"></td>';
+            }
+            cust_data += '</tr>';
+        });
+        $(".details_tbody").replaceWith(
+            `<tbody class="details_tbody">${cust_data}</tbody>`);
+    }
+
+    function generatePDF() {
+
+        var HTML_Width = $(".canvas_div_pdf").width();
+        var HTML_Height = $(".canvas_div_pdf").height();
+        var top_left_margin = 15;
+        var PDF_Width = HTML_Width+(top_left_margin*5);
+        var PDF_Height = (PDF_Width*1.5)+(top_left_margin*2);
+        var canvas_image_width = HTML_Width;
+        var canvas_image_height = HTML_Height;
+
+        var totalPDFPages = Math.ceil(HTML_Height/PDF_Height)-1;
+
+        html2canvas($(".canvas_div_pdf")[0],{allowTaint:true}).then(function(canvas) {
+            canvas.getContext('2d');
+            canvas['imageSmoothingEnabled']=true;
+            
+            console.log(canvas.height+"  "+canvas.width);
+            
+            
+            var imgData = canvas.toDataURL("image/png", 0.92);
+            var pdf = new jsPDF('p', 'pt',  [PDF_Width, PDF_Height]);
+            pdf.addImage(imgData, 'JPG', top_left_margin, top_left_margin,canvas_image_width,canvas_image_height);
+            
+            
+            for (var i = 1; i <= totalPDFPages; i++) { 
+                pdf.addPage(PDF_Width, PDF_Height);
+                pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height*i)+(top_left_margin*4),canvas_image_width,canvas_image_height);
+            }
+            
+            pdf.save(`{{ scan.branch.repository.organization.name }}_{{ scan.branch.repository.name }}_{{ scan.branch.name }}.pdf`);
+        });
+    };
+
+</script>
+{% endblock %}

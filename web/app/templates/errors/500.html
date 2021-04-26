@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Internal Server Error{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+
+<div class="content-section">
+    <div class="outer">
+      <div class="middle">
+        <div class="inner">
+          <div style="text-align: center; color: #ccd9e0">
+              <h1> 500 Error </h1>
+              <h3> The server encountered an internal error. That's all we know. </h3>
+              <hr class="intro-divider">
+              <a href="/" class="btn btn-default btn-lg" style="color: #8d9aa1">
+                  <i class="fa fa-home"></i>
+                  Home
+              </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

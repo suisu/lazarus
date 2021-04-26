@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                {% from "_formhelpers.html" import render_field %}
+                <form onsubmit="" class="box" method="POST" action="/register">
+                    <h1>Register</h1>
+                    <p class="text-muted"> Before you submit this form, please ensure you have Google, Microsoft or FreeOTP Authenticator 
+                        <a href="https://fedorahosted.org/freeotp/">FreeOTP</a> installed on your smartphone, as you will need it to complete your registration.
+                        Download from <a href="https://itunes.apple.com/us/app/freeotp/id872559395">iTunes</a> |
+                        <a href="https://play.google.com/store/apps/details?id=org.fedorahosted.freeotp">Google Play</a></p>
+                    {{ form.csrf_token }}
+                    {{ render_field(form.username) }}
+                    {{ render_field(form.password) }}
+                    {{ render_field(form.password_again) }}
+                    <input type="submit" name="" value="Register" href="#">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
