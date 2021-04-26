@@ -4,8 +4,8 @@
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT EMAIL FROM INITADMIN 
-                    WHERE EMAIL = 'monika.mullerova@sap.com') THEN
-    INSERT INTO INITADMIN (EMAIL) VALUES ('monika.mullerova@sap.com');
+                    WHERE EMAIL = 'xx@xx.com') THEN
+    INSERT INTO INITADMIN (EMAIL) VALUES ('xx@xx.com');
     END IF;
 END
 $$
